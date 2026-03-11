@@ -3,7 +3,7 @@
 **ChessX** is a high-performance, real-time multiplayer chess platform. Built with a **React** frontend and a **Python/Flask** backend, it leverages **WebSockets** to provide a seamless, low-latency competitive experience.
 
 ## 🚀 Live Demo
-**Frontend:** [Insert your Vercel Link]  
+**Frontend:** [(https://chess-henna-kappa.vercel.app/)]  
 **Backend API:** [Insert your Render Link]
 
 ---
