@@ -1,70 +1,62 @@
-# Getting Started with Create React App
+♟️ ChessX
+ChessX is a high-performance, real-time multiplayer chess platform. Built with a React frontend and a Python/Flask backend, it leverages WebSockets to provide a seamless, low-latency competitive experience.
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+🚀 Live Demo
+Frontend: [Your Vercel Link Here]
 
-## Available Scripts
+Backend API: [Your Render Link Here]
 
-In the project directory, you can run:
+✨ Features
+Real-Time Matchmaking: A dynamic lobby system that tracks online users and their availability (Available/Busy).
 
-### `npm start`
+Live Gameplay: Sub-200ms move synchronization using Socket.IO.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+Move Validation: Full implementation of chess rules (checkmate, stalemate, castling, and draws) powered by chess.js.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+Responsive UI: Mobile-friendly chessboard designed with React and CSS3.
 
-### `npm test`
+Interactive Notifications: Sound effects for moves, captures, and checkmates to enhance user experience.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+🛠️ Tech Stack
+Frontend
+React.js: Functional components and Hooks (useState, useEffect).
 
-### `npm run build`
+Socket.io-client: Real-time bidirectional event handling.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Chess.js: Move validation and game state management.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Vercel: Optimized frontend hosting.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Backend
+Python / Flask: Lightweight and scalable server architecture.
 
-### `npm run eject`
+Flask-SocketIO: WebSocket integration for Python.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+Gevent / Gunicorn: Production-grade WSGI server for high concurrency.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Render: Managed cloud hosting for the Python backend.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+⚙️ Local Setup
+Clone the repository:
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+Bash
+git clone https://github.com/Rudra428/Chess.git
+cd Chess
+Setup the Backend:
 
-## Learn More
+Bash
+cd chess_server
+pip install -r requirements.txt
+python server.py
+Setup the Frontend:
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+Bash
+# Open a new terminal
+npm install
+npm start
+📝 Key Achievements
+Optimized Concurrency: Successfully transitioned the backend from Node.js to a specialized Python/Gevent environment to handle real-time event loops efficiently.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+State Synchronization: Solved the "Always Busy" edge case by implementing a global state broadcast system that resets player status upon resignation, checkmate, or disconnection.
 
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Production Hardening: Configured environment-specific variables and CORS policies to allow secure communication between separate hosting providers (Vercel & Render).
