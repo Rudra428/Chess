@@ -97,9 +97,22 @@ def on_resign(data):
 def on_draw_offer(data):
     emit("draw-offer", to=data["gameId"], include_self=False)
 
+# @socketio.on("draw-response")
+# def on_draw_response(data):
+#     emit("draw-response", {"accepted": data["accepted"]}, to=data["gameId"], include_self=False)
+
 @socketio.on("draw-response")
 def on_draw_response(data):
-    emit("draw-response", {"accepted": data["accepted"]}, to=data["gameId"], include_self=False)
+    game_id = data.get("gameId")
+    accepted = data.get("accepted")
+    if accepted and game_id in games:
+        for pid in games[game_id]["players"]:
+            if pid in users:
+                users[pid]["status"] = "available"
+        emit("draw-response", {"accepted": True}, to=game_id)
+        broadcast_user_list()
+    else:
+        emit("draw-response", {"accepted": False}, to=game_id)
 
 @socketio.on("leave-game")
 def on_leave_game():
