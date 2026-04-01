@@ -9,7 +9,8 @@
 ---
 
 ## 📸 Preview
-![ChessX Gameplay](https://via.placeholder.com/800x400?text=Insert+Screenshot+of+your+Lobby+or+Game+here)
+![ChessX Gameplay](<img width="1358" height="945" alt="Screenshot 2026-04-01 234321" src="https://github.com/user-attachments/assets/20b75436-cfa9-48b9-a069-88f1f13e9562" />
+)
 
 ---
 
