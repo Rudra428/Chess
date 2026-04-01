@@ -159,8 +159,7 @@ function App() {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [view, gameOver, game.turn(), playerColor, gameId]);
-
+  }, [view, gameOver, game, playerColor, gameId]); 
 
   const formatTime = (seconds) => {
     const m = Math.floor(seconds / 60);
