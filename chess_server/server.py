@@ -1,6 +1,7 @@
 from flask import Flask, request
 from flask_socketio import SocketIO, join_room, emit
 import uuid
+import time
 
 app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins="*")
@@ -68,12 +69,22 @@ def on_challenge_response(data):
         if challenger_id in users:
             users[challenger_id]["status"] = "playing"
         broadcast_user_list()
-        games[game_id] = {"players": [challenger_id, request.sid], "fen": None}
-        emit("game-start", {"gameId": game_id, "color": "w"}, to=challenger_id)
-        emit("game-start", {"gameId": game_id, "color": "b"}, to=request.sid)
+        games[game_id] = {
+            "players": [challenger_id, request.sid], 
+            "fen": None,
+            "times": {"w": 900, "b": 900},
+            "last_move_time": time.time(),
+            "turn": "w"
+        }
+        challenger_name = users[challenger_id]["name"]
+        target_name = users[request.sid]["name"]
+        emit("game-start", {"gameId": game_id, "color": "w","opponentName": target_name}, to=challenger_id)
+        emit("game-start", {"gameId": game_id, "color": "b","opponentName": challenger_name}, to=request.sid)
 
     else:
         emit("challenge-rejected", to=challenger_id)
+
+
 @socketio.on("join-game-room")
 def on_join_game_room(game_id):
     join_room(game_id)
@@ -82,9 +93,21 @@ def on_join_game_room(game_id):
 def on_move(data):
     game_id = data["gameId"]
     if game_id in games:
-        games[game_id]["fen"] = data["fen"]
-        emit("state", data["fen"], to=game_id, include_self=False)
+        game = games[game_id]
+        current_time = time.time()
 
+        elapsed = int(current_time - game["last_move_time"])
+        turn = game["turn"]
+        
+        game["times"][turn] = max(0, game["times"][turn] - elapsed)
+        game["turn"] = "b" if turn == "w" else "w"
+        game["last_move_time"] = current_time
+        game["fen"] = data["fen"]
+        
+        emit("state", {"fen": data["fen"], "times": game["times"]}, to=game_id, include_self=False)
+
+
+        
 @socketio.on("resign")
 def on_resign(data):
     emit("opponent-resigned", to=data["gameId"], include_self=False)

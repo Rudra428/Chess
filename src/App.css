@@ -12,9 +12,12 @@
 
 .board {
   display: grid;
-  grid-template-columns: repeat(8, 60px);
+  grid-template-columns: repeat(8, 70px);
+  grid-template-rows: repeat(8, 70px);
   margin: 20px auto;
-  border: 3px solid #000;
+  border: 6px solid #3d3a37;
+  border-radius: 4px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
   user-select: none;
 }
 
@@ -24,44 +27,73 @@
 
 .square {
   position: relative;
-  width: 60px;
-  height: 60px;
+  width: 70px;
+  height: 70px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  transition: background-color 0.1s ease;
 }
 
-.white { background: #f0d9b5; }
-.black { background: #b58863; }
+/* Classic Green & Cream Board */
+.white { background-color: #ebecd0; }
+.black { background-color: #779556; }
+
+.square.selected {
+  background-color: rgba(255, 255, 51, 0.4) !important;
+}
+.square.last-move {
+  background-color: rgba(255, 255, 51, 0.6) !important;
+}
 
 .square.legal::after {
   content: "";
   position: absolute;
-  inset: 0;
-  background-color: rgba(172, 255, 5, 0.4);
+  width: 20px;
+  height: 20px;
+  background-color: rgba(0, 0, 0, 0.15);
+  border-radius: 50%;
   pointer-events: none;
 }
 
+.square.legal.has-piece::after {
+  width: 62px;
+  height: 62px;
+  background-color: transparent;
+  border: 5px solid rgba(0, 0, 0, 0.15);
+  border-radius: 50%;
+}
+
 .check {
-  background-color: #ff4d4d !important;
+  background-color: rgba(255, 10, 10, 0.8) !important;
 }
 
 .piece {
   width: 90%;
   height: 90%;
-  pointer-events: none;
   z-index: 10;
+  filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.4)); 
+  transition: transform 0.15s ease-out;
+  pointer-events: none;
+}
+
+.square:hover .piece {
+  transform: scale(1.05);
 }
 
 .piece.rotate {
   transform: rotate(180deg);
 }
 
+.square:hover .piece.rotate {
+  transform: rotate(180deg) scale(1.05);
+}
+
 .piece.fell {
   transform: rotate(90deg);
   transform-origin: center;
-  transition: transform 0.6s ease;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .login-container {
@@ -74,10 +106,11 @@
   animation: fadeIn 0.5s ease-in;
 }
 
+/* UI Accent - Neon Blue */
 .login-container h1 {
   margin-bottom: 0.5rem;
   font-size: 2.5rem;
-  color: #769656;
+  color: #00bbff; 
 }
 
 .login-container form {
@@ -99,12 +132,12 @@
 }
 
 .login-container input:focus {
-  border-color: #769656;
+  border-color: #00bbff; 
 }
 
 .login-container button {
   padding: 12px;
-  background-color: #769656;
+  background-color: #00bbff; 
   color: white;
   font-weight: bold;
   border: none;
@@ -115,7 +148,28 @@
 }
 
 .login-container button:hover {
-  background-color: #5d7a42;
+  background-color: #0099cc; 
+}
+
+.logout-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  padding: 8px 16px;
+  background-color: #c0392b;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  z-index: 100; 
+}
+
+.logout-btn:hover {
+  background-color: #a93226;
+  transform: translateY(-2px);
 }
 
 .lobby-container {
@@ -183,8 +237,8 @@
 }
 
 .user-item button:hover:not(:disabled) {
-  background-color: #769656;
-  border-color: #769656;
+  background-color: #00bbff; 
+  border-color: #00bbff; 
 }
 
 .user-item button:disabled {
@@ -224,7 +278,7 @@
   width: 90%;
   max-width: 400px;
   border: 1px solid #444;
-  box-shadow: 0 0 20px rgba(118, 150, 86, 0.2);
+  box-shadow: 0 0 20px rgba(0, 187, 255, 0.2); 
 }
 
 .modal-buttons {
@@ -245,7 +299,7 @@
 }
 
 .modal-buttons button:first-child {
-  background-color: #769656;
+  background-color: #00bbff; 
   color: white;
 }
 
@@ -297,7 +351,7 @@
 
 .exit-btn {
   padding: 12px 24px;
-  background-color: #007bff;
+  background-color: #00bbff; 
   color: white;
   font-size: 1.1rem;
   font-weight: bold;
@@ -309,11 +363,107 @@
 }
 
 .exit-btn:hover {
-  background-color: #0056b3;
+  background-color: #0099cc; 
   transform: translateY(-2px);
 }
 
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(-10px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+/* =========================================
+   GAME LAYOUT (Side-by-Side)
+   ========================================= */
+
+.game-layout {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: stretch; 
+  gap: 30px; 
+  margin: 20px auto;
+  max-width: 900px;
+}
+
+.info-column {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; 
+  width: 220px;
+  padding: 10px 0; 
+}
+
+.player-profile {
+  display: flex;
+  flex-direction: column; 
+  align-items: center;
+  justify-content: center;
+  padding: 15px;
+  background-color: #2a2a2a;
+  border-radius: 8px;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+  border-top: 4px solid #00bbff; 
+  box-sizing: border-box;
+}
+
+.player-name {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #e0e0e0;
+  margin-bottom: 12px;
+  text-align: center;
+  word-break: break-all; 
+}
+
+.player-timer {
+  font-size: 2rem; 
+  font-family: monospace;
+  font-weight: bold;
+  background-color: #1e1e1e;
+  padding: 10px 15px;
+  border-radius: 6px;
+  color: #f0f0f0;
+  border: 1px solid #444;
+  width: 100%;
+  text-align: center;
+  box-sizing: border-box;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.5); 
+}
+
+@media (max-width: 850px) {
+  .game-layout {
+    flex-direction: column;
+    align-items: center;
+  }
+  .info-column {
+    flex-direction: row;
+    width: 100%;
+    max-width: 570px; 
+  }
+  .player-profile {
+    width: 48%; 
+  }
+}
+
+/* Keyframes for normal pieces (White) */
+@keyframes stumble {
+  0% { transform: rotate(0deg); }
+  50% { transform: rotate(90deg); }
+  100% { transform: rotate(0deg); }
+}
+
+/* Keyframes for flipped pieces (Black) */
+@keyframes stumbleRotated {
+  0% { transform: rotate(180deg); }
+  50% { transform: rotate(270deg); }
+  100% { transform: rotate(180deg); }
+}
+
+.check .piece {
+  animation: stumble 0.5s ease-in-out;
+}
+
+.check .piece.rotate {
+  animation: stumbleRotated 0.5s ease-in-out;
 }

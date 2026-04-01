@@ -21,6 +21,10 @@ function App() {
 
   const [isDrawOffered, setIsDrawOffered] = useState(false);
 
+
+  const [timers, setTimers] = useState({ w: 900, b: 900 });
+  const [opponentName, setOpponentName] = useState("");
+
   useEffect(() => {
     if (view === "login") return;
     const handle = (e) => {
@@ -47,9 +51,11 @@ function App() {
       alert("Challenge rejected.");
     });
 
-    socket.on("game-start", ({ gameId, color }) => {
+    socket.on("game-start", ({ gameId, color, opponentName }) => {
       setGameId(gameId);
       setPlayerColor(color);
+      setOpponentName(opponentName);
+      setTimers({ w: 900, b: 900 });
       setGame(new Chess());
       setGameOver(false);
       setResult("");
@@ -71,8 +77,19 @@ function App() {
   useEffect(() => {
     if (view !== "game") return;
 
-    socket.on("state", (fen) => {
+    socket.on("state", ({ fen, times }) => {
       setGame(new Chess(fen));
+      setTimers(times); // Sync clock with server after every move
+    });
+
+
+    socket.on("timeout-loss", ({ loserId }) => {
+      setGameOver(true);
+      if (socket.id === loserId) {
+        setResult("Time's up! You lost.");
+      } else {
+        setResult("Opponent ran out of time. You won!");
+      }
     });
 
     socket.on("opponent-resigned", () => {
@@ -104,6 +121,7 @@ function App() {
       socket.off("opponent-disconnected");
       socket.off("draw-offer");
       socket.off("draw-response");
+      socket.off("timeout-loss");
     };
   }, [view]);
 
@@ -119,6 +137,36 @@ function App() {
       }
     }
   }, [game, playerColor]);
+
+
+  useEffect(() => {
+    if (view !== "game" || gameOver) return;
+
+    const currentTurn = game.turn();
+    const interval = setInterval(() => {
+      setTimers((prev) => {
+        const newTime = prev[currentTurn] - 1;
+
+        if (newTime <= 0) {
+          clearInterval(interval);
+          if (currentTurn === playerColor) {
+            socket.emit("timeout", { gameId });
+          }
+          return { ...prev, [currentTurn]: 0 };
+        }
+        return { ...prev, [currentTurn]: newTime };
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [view, gameOver, game.turn(), playerColor, gameId]);
+
+
+  const formatTime = (seconds) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}:${s < 10 ? "0" : ""}${s}`;
+  };
 
   const handleLogin = (e) => {
     e.preventDefault();
@@ -186,11 +234,25 @@ function App() {
     }
   };
 
+  const handleLogout = () => {
+    socket.emit("logout");
+    setUsername("");
+    setOnlineUsers([]);
+    setIncomingChallenge(null);
+    setPendingChallenge(null);
+    setView("login");
+  };
+
   return (
     <div className="app">
+      {view === "lobby" && (
+        <button className="logout-btn" onClick={handleLogout}>
+          Logout
+        </button>
+      )}
       {view === "login" && (
         <div className="login-container">
-          <h1>Chess</h1>
+          <h1>Chess<span style={{ color: "red" }}>X</span></h1>
           <form onSubmit={handleLogin}>
             <input value={username} onChange={e => setUsername(e.target.value)} placeholder="Enter Name" required />
             <button type="submit">Join</button>
@@ -234,21 +296,53 @@ function App() {
 
       {view === "game" && (
         <div className="game-container">
-          <div className="game-header">
-            <h2>Room: {gameId}</h2>
+         
+          <div className="game-layout">
+
+            {/* Left Side: The Board */}
+            <div className="board-column">
+              <ChessBoard game={game} makeMove={handleMove} playerColor={playerColor} />
+            </div>
+
+            {/* Right Side: The Timers & Info */}
+            <div className="info-column">
+              {/* Opponent Info (Top Right) */}
+              <div className="player-profile opponent-profile">
+                <span className="player-name">{opponentName}</span>
+                <span className="player-timer">{formatTime(timers[playerColor === "w" ? "b" : "w"])}</span>
+              </div>
+
+              {/* Your Info (Bottom Right) */}
+              <div className="player-profile user-profile">
+                <span className="player-name">{username}</span>
+                <span className="player-timer">{formatTime(timers[playerColor])}</span>
+              </div>
+            </div>
+
           </div>
 
-          <ChessBoard game={game} makeMove={handleMove} playerColor={playerColor} />
-
-          {gameOver ? (
-            <div className="game-over-container">
-              <h2 className="result-text">{result}</h2>
-              <button onClick={leaveGame} className="exit-btn">Exit to Lobby</button>
-            </div>
-          ) : (
+         {/* Controls - Only show if game is active */}
+          {!gameOver && (
             <div className="controls">
               <button onClick={handleOfferDraw} className="draw-btn">½ Offer Draw</button>
               <button onClick={handleResign} className="resign-btn">🏳 Resign</button>
+            </div>
+          )}
+
+          {/* Game Over Pop-up Modal */}
+          {gameOver && (
+            <div className="modal-overlay">
+              <div className="modal" style={{ borderTop: "5px solid #00bbff", padding: "40px 30px" }}>
+                <h2 className="result-text" style={{ marginBottom: "15px", fontSize: "2.5rem" }}>
+                  Game Over
+                </h2>
+                <h3 style={{ color: "#f0f0f0", fontSize: "1.4rem", marginBottom: "30px", fontWeight: "normal" }}>
+                  {result}
+                </h3>
+                <button onClick={leaveGame} className="exit-btn" style={{ width: "100%", padding: "15px" }}>
+                  Return to Lobby
+                </button>
+              </div>
             </div>
           )}
 
